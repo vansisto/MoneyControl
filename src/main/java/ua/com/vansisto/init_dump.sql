@@ -1,0 +1,86 @@
+PRAGMA foreign_keys=OFF;
+BEGIN TRANSACTION;
+CREATE TABLE symbols (
+	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	symbol TEXT(3) NOT NULL
+);
+CREATE TABLE exchange_rates (
+	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	date TEXT NOT NULL,
+	base_symbol INTEGER NOT NULL,
+	symbol INTEGER NOT NULL,
+	rate REAL NOT NULL,
+	CONSTRAINT exchange_rates_FK FOREIGN KEY (base_symbol) REFERENCES symbols(id) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT exchange_rates_FK_1 FOREIGN KEY (symbol) REFERENCES symbols(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+CREATE TABLE IF NOT EXISTS "category_types" (
+	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	title TEXT NOT NULL
+);
+INSERT INTO category_types VALUES(1,'INCOME');
+INSERT INTO category_types VALUES(2,'OUTCOME');
+INSERT INTO category_types VALUES(3,'MOVE');
+CREATE TABLE categories (
+	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	title TEXT NOT NULL,
+	parent INTEGER,
+	description TEXT,
+	"type" INTEGER DEFAULT 2 NOT NULL,
+	CONSTRAINT categories_UN UNIQUE (id),
+	CONSTRAINT categories_FK FOREIGN KEY (parent) REFERENCES categories(id) ON DELETE SET NULL ON UPDATE CASCADE,
+	CONSTRAINT categories_FK_1 FOREIGN KEY ("type") REFERENCES "category_types"(id) ON DELETE SET NULL
+);
+CREATE TABLE account_types (
+	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	title TEXT NOT NULL
+);
+INSERT INTO account_types VALUES(1,'CASH');
+INSERT INTO account_types VALUES(2,'BANK');
+INSERT INTO account_types VALUES(3,'CREDIT_CARD');
+INSERT INTO account_types VALUES(4,'DEBIT_CARD');
+INSERT INTO account_types VALUES(5,'DEPOSIT');
+INSERT INTO account_types VALUES(6,'CREDIT');
+INSERT INTO account_types VALUES(7,'DEBT');
+INSERT INTO account_types VALUES(8,'THINGS');
+CREATE TABLE account_owners (
+	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	name TEXT NOT NULL
+);
+CREATE TABLE accounts (
+	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	title TEXT NOT NULL,
+	"number" INTEGER,
+	"type" INTEGER,
+	description TEXT,
+	owner INTEGER,
+	balance REAL DEFAULT 0 NOT NULL,
+	overdraft REAL DEFAULT 0 NOT NULL,
+	symbol INTEGER NOT NULL,
+	CONSTRAINT accounts_FK FOREIGN KEY ("type") REFERENCES account_types(id) ON DELETE SET NULL,
+	CONSTRAINT accounts_FK_1 FOREIGN KEY (owner) REFERENCES account_owners(id) ON DELETE SET NULL,
+	CONSTRAINT accounts_FK_2 FOREIGN KEY (symbol) REFERENCES symbols(id) ON DELETE RESTRICT
+);
+CREATE TABLE operations (
+	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	date TEXT NOT NULL,
+	amount REAL NOT NULL,
+	from_account INTEGER,
+	to_account INTEGER,
+	"type" INTEGER NOT NULL,
+	category INTEGER,
+	description TEXT,
+	parent INTEGER,
+	initiator INTEGER,
+	planed INTEGER DEFAULT 0 NOT NULL,
+	deleted INTEGER DEFAULT 0 NOT NULL,
+	CONSTRAINT operations_FK FOREIGN KEY (from_account) REFERENCES accounts(id) ON DELETE RESTRICT,
+	CONSTRAINT operations_FK_1 FOREIGN KEY (to_account) REFERENCES accounts(id) ON DELETE RESTRICT,
+	CONSTRAINT operations_FK_2 FOREIGN KEY ("type") REFERENCES category_types(id) ON DELETE RESTRICT,
+	CONSTRAINT operations_FK_3 FOREIGN KEY (category) REFERENCES categories(id) ON DELETE SET NULL,
+	CONSTRAINT operations_FK_4 FOREIGN KEY (initiator) REFERENCES account_owners(id),
+	CONSTRAINT operations_FK_5 FOREIGN KEY (parent) REFERENCES operations(id)
+);
+DELETE FROM sqlite_sequence;
+INSERT INTO sqlite_sequence VALUES('category_types',3);
+INSERT INTO sqlite_sequence VALUES('account_types',8);
+COMMIT;

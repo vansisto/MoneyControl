@@ -25,6 +25,11 @@
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.34.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20210307</version>
+        </dependency>
 
     </dependencies>
 
@@ -34,6 +39,8 @@
                 <directory>src/main/java</directory>
                 <includes>
                     <include>**/*.fxml</include>
+                    <include>**/*.css</include>
+                    <include>**/*.png</include>
                 </includes>
             </resource>
         </resources>

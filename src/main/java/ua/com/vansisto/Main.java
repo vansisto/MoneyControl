@@ -7,12 +7,16 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-
     @Override
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("fxml/main.fxml"));
         primaryStage.setTitle("Money control");
-        primaryStage.setScene(new Scene(root, 1000, 800));
+        primaryStage.setMinHeight(400);
+        primaryStage.setMinWidth(650);
+        Scene scene = new Scene(root, 1000, 800);
+        String css = this.getClass().getResource("fxml/styles/main.css").toExternalForm();
+        scene.getStylesheets().add(css);
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 
